@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Upload your photo and watch AI transform you into a Carrot Champion! Free, instant, and fun — plus real carrot health facts.">
+  <meta property="og:title" content="Gaajarfi — Become a Carrot Champion!">
+  <meta property="og:description" content="AI-powered fun that shows you enjoying carrots — and why you really should!">
+  <title>Gaajarfi — Become a Carrot Champion!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange:      #FF6B35;
+      --orange-mid:  #FF8C42;
+      --orange-lite: #FFA559;
+      --orange-pale: #FFF3E8;
+      --orange-border: rgba(255,107,53,0.2);
+      --green:       #22C55E;
+      --green-dark:  #16A34A;
+      --green-pale:  #F0FDF4;
+      --dark:        #0F172A;
+      --dark-mid:    #1E293B;
+      --gray:        #64748B;
+      --border:      #E2E8F0;
+      --bg:          #F8FAFC;
+      --white:       #FFFFFF;
+      --shadow:      0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md:   0 4px 6px -1px rgba(0,0,0,.08), 0 2px 4px -2px rgba(0,0,0,.05);
+      --shadow-lg:   0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -4px rgba(0,0,0,.05);
+      --shadow-xl:   0 20px 25px -5px rgba(0,0,0,.1),  0 8px 10px -6px rgba(0,0,0,.05);
+      --r:   12px;
+      --rl:  20px;
+      --rxl: 28px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--white);
+      color: var(--dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVBAR ─────────────────────────────── */
+    .navbar {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      height: 64px; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.35rem; font-weight: 900; color: var(--orange);
+      text-decoration: none; letter-spacing: -0.5px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 28px; list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.9rem; font-weight: 500; color: var(--gray);
+      text-decoration: none; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--dark); }
+    .nav-btn {
+      background: var(--orange); color: white; border: none;
+      padding: 9px 20px; border-radius: 8px;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .nav-btn:hover { background: var(--orange-mid); transform: translateY(-1px); }
+
+    /* ─── HERO ────────────────────────────────── */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: 110px 24px 130px;
+      background: linear-gradient(145deg, #FFF8F3 0%, #FFF0E0 55%, #FFFBF0 100%);
+      text-align: center;
+    }
+    .hero-bg { position: absolute; inset: 0; pointer-events: none; }
+    .fc {
+      position: absolute; user-select: none;
+      opacity: .1; animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+      8%   { opacity: .12; }
+      92%  { opacity: .12; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--orange-pale); color: var(--orange);
+      border: 1px solid var(--orange-border);
+      padding: 5px 14px; border-radius: 100px;
+      font-size: .82rem; font-weight: 700; margin-bottom: 22px;
+      letter-spacing: .3px;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 6.5vw, 4.8rem);
+      font-weight: 900; line-height: 1.08; letter-spacing: -2.5px;
+      color: var(--dark); margin-bottom: 20px;
+    }
+    .grad {
+      background: linear-gradient(135deg, var(--orange), #FF9A3C);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.12rem; color: var(--gray); line-height: 1.75;
+      max-width: 540px; margin: 0 auto 38px;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-mid));
+      color: white; font-size: 1.08rem; font-weight: 700;
+      padding: 17px 36px; border-radius: 14px; border: none;
+      cursor: pointer; text-decoration: none;
+      box-shadow: 0 8px 28px rgba(255,107,53,.38);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .hero-cta:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(255,107,53,.48); }
+    .hero-proof { margin-top: 22px; font-size: .86rem; color: var(--gray); }
+    .hero-proof b { color: var(--green-dark); }
+
+    /* ─── APP SECTION ─────────────────────────── */
+    #app { padding: 88px 24px; background: var(--white); }
+    .app-wrap { max-width: 600px; margin: 0 auto; }
+    .sec-head { text-align: center; margin-bottom: 48px; }
+    .sec-head h2 { font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+    .sec-head p  { color: var(--gray); font-size: 1rem; }
+
+    .app-card {
+      background: var(--white); border-radius: var(--rxl);
+      border: 2px solid var(--border);
+      padding: 40px; box-shadow: var(--shadow-xl);
+    }
+
+    /* Stages */
+    #loadingStage, #resultStage { display: none; }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 2px dashed #CBD5E1; border-radius: var(--rl);
+      padding: 52px 24px; text-align: center; cursor: pointer;
+      transition: all .25s; background: var(--bg); position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag { border-color: var(--orange); background: var(--orange-pale); }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+    }
+    .up-icon {
+      width: 72px; height: 72px; background: white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 2rem; box-shadow: var(--shadow-md);
+    }
+    .upload-zone h3 { font-size: 1.08rem; font-weight: 700; margin-bottom: 6px; }
+    .upload-zone p  { font-size: .875rem; color: var(--gray); }
+    .upload-hints {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 10px; margin-top: 18px;
+    }
+    .upload-hints span {
+      font-size: .78rem; color: var(--gray);
+      background: white; border: 1px solid var(--border);
+      padding: 4px 12px; border-radius: 100px;
+    }
+    .preview-wrap { display: none; margin-top: 22px; text-align: center; }
+    .preview-wrap img {
+      max-height: 220px; max-width: 100%; border-radius: var(--r);
+      border: 2px solid #FFE0C8; object-fit: cover;
+    }
+    .change-link {
+      display: inline-block; margin-top: 10px;
+      font-size: .85rem; color: var(--orange); cursor: pointer;
+      font-weight: 600; text-decoration: underline;
+    }
+    .err-box {
+      display: none; background: #FEF2F2; border: 1px solid #FECACA;
+      border-radius: var(--r); padding: 11px 16px;
+      color: #DC2626; font-size: .875rem; margin-top: 14px;
+    }
+    .gen-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 16px; margin-top: 22px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-mid));
+      color: white; font-size: 1.08rem; font-weight: 700;
+      border: none; border-radius: var(--r); cursor: pointer;
+      box-shadow: 0 4px 18px rgba(255,107,53,.3);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .gen-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(255,107,53,.42); }
+    .gen-btn:disabled { background: #CBD5E1; box-shadow: none; cursor: not-allowed; }
+
+    /* Loading */
+    .load-wrap { text-align: center; padding: 10px 0; }
+    .load-carrot {
+      font-size: 4rem; display: block; margin-bottom: 22px;
+      animation: bounce .75s ease-in-out infinite alternate;
+    }
+    @keyframes bounce {
+      from { transform: scale(1) rotate(-10deg); }
+      to   { transform: scale(1.2) rotate(10deg); }
+    }
+    .load-wrap h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .load-wrap > p { color: var(--gray); font-size: .9rem; }
+    .progress-track {
+      background: var(--bg); border-radius: 100px;
+      height: 8px; max-width: 300px; margin: 22px auto 0; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 100px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-lite));
+      animation: prog 28s linear forwards;
+    }
+    @keyframes prog { 0%{width:0} 60%{width:70%} 85%{width:90%} 100%{width:95%} }
+    .load-steps { list-style: none; margin-top: 22px; display: flex; flex-direction: column; gap: 10px; }
+    .load-step {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; font-size: .875rem; color: var(--gray);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+    .dot.active { background: var(--orange); animation: pulse 1s ease-in-out infinite; }
+    .dot.done   { background: var(--green); }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.6);opacity:.7} }
+
+    /* Result */
+    .res-head { text-align: center; margin-bottom: 26px; }
+    .res-head h3 { font-size: 1.45rem; font-weight: 800; margin-bottom: 6px; }
+    .res-head p  { color: var(--gray); font-size: .875rem; }
+
+    /* Comparison slider */
+    .comparison {
+      position: relative; width: 100%; border-radius: var(--rl);
+      overflow: hidden; cursor: ew-resize;
+      user-select: none; touch-action: none;
+      box-shadow: var(--shadow-xl); margin-bottom: 12px;
+    }
+    .cmp-before { display: block; width: 100%; height: 360px; object-fit: cover; }
+    .cmp-after  {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; clip-path: inset(0 50% 0 0);
+    }
+    .cmp-handle {
+      position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%);
+      height: 100%; width: 3px;
+      background: white; z-index: 5; pointer-events: none;
+    }
+    .cmp-handle::after {
+      content: '⟷';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      background: white; width: 42px; height: 42px;
+      border-radius: 50%; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 13px; box-shadow: 0 2px 14px rgba(0,0,0,.25);
+      color: var(--orange); font-weight: 900;
+    }
+    .cmp-labels {
+      display: flex; justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .cmp-labels span {
+      font-size: .78rem; color: var(--gray); font-weight: 600;
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 4px 12px; border-radius: 100px;
+    }
+
+    /* Fact card */
+    .fact-card {
+      background: var(--green-pale); border: 1px solid #BBF7D0;
+      border-radius: var(--r); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .fact-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+    .fact-body small {
+      font-size: .72rem; font-weight: 700; color: var(--green-dark);
+      text-transform: uppercase; letter-spacing: .6px; display: block; margin-bottom: 5px;
+    }
+    .fact-body p { font-size: .875rem; color: #15803D; line-height: 1.55; }
+
+    /* Actions */
+    .res-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .act-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px; border-radius: var(--r);
+      font-size: .9rem; font-weight: 600; cursor: pointer;
+      border: 2px solid var(--border); background: white; color: var(--dark);
+      transition: all .2s; text-decoration: none;
+    }
+    .act-btn:hover { border-color: var(--orange); color: var(--orange); transform: translateY(-1px); }
+    .act-btn.dark { background: var(--dark); color: white; border-color: var(--dark); }
+    .act-btn.dark:hover { background: var(--dark-mid); color: white; border-color: var(--dark-mid); }
+    .again-btn {
+      width: 100%; padding: 14px;
+      background: var(--orange-pale); color: var(--orange);
+      border: 2px solid var(--orange-border); border-radius: var(--r);
+      font-size: .9rem; font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .again-btn:hover { background: #FFE3CC; border-color: var(--orange); }
+
+    /* ─── HOW IT WORKS ────────────────────────── */
+    #how { padding: 100px 24px; background: var(--bg); }
+    .sec-title { text-align: center; margin-bottom: 60px; }
+    .sec-title h2 { font-size: 2.1rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+    .sec-title p  { color: var(--gray); font-size: 1rem; max-width: 460px; margin: 0 auto; }
+    .steps {
+      max-width: 920px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 28px;
+    }
+    .step {
+      background: white; border-radius: var(--rl); padding: 32px 26px;
+      text-align: center; border: 1px solid var(--border);
+      box-shadow: var(--shadow); transition: transform .25s, box-shadow .25s;
+    }
+    .step:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); }
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; background: var(--orange);
+      color: white; font-size: .8rem; font-weight: 800;
+      border-radius: 50%; margin-bottom: 18px;
+    }
+    .step-ico { font-size: 2.5rem; margin-bottom: 14px; display: block; }
+    .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
+    .step p  { font-size: .875rem; color: var(--gray); line-height: 1.65; }
+
+    /* ─── BENEFITS ────────────────────────────── */
+    #benefits { padding: 100px 24px; background: white; }
+    .benefits {
+      max-width: 1020px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .ben {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--rl); padding: 26px 22px;
+      transition: all .25s;
+    }
+    .ben:hover { background: var(--orange-pale); border-color: var(--orange-border); transform: translateY(-2px); }
+    .ben-ico { font-size: 1.9rem; margin-bottom: 12px; display: block; }
+    .ben h4 { font-size: .95rem; font-weight: 700; margin-bottom: 8px; }
+    .ben p  { font-size: .85rem; color: var(--gray); line-height: 1.6; }
+
+    /* ─── BOTTOM CTA ──────────────────────────── */
+    .cta-band {
+      padding: 100px 24px; text-align: center;
+      background: linear-gradient(135deg, var(--orange) 0%, #FF8C42 50%, #FFA559 100%);
+      color: white;
+    }
+    .cta-band h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 900; letter-spacing: -1px; margin-bottom: 14px; }
+    .cta-band p  { font-size: 1.05rem; opacity: .92; max-width: 460px; margin: 0 auto 36px; }
+    .cta-band-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: white; color: var(--orange);
+      padding: 16px 36px; border-radius: 14px; font-size: 1.05rem;
+      font-weight: 700; border: none; cursor: pointer;
+      box-shadow: 0 8px 28px rgba(0,0,0,.15); transition: transform .25s, box-shadow .25s;
+    }
+    .cta-band-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(0,0,0,.22); }
+
+    /* ─── FOOTER ──────────────────────────────── */
+    footer {
+      background: var(--dark); color: rgba(255,255,255,.45);
+      padding: 44px 24px; text-align: center; font-size: .85rem;
+    }
+    .foot-logo { font-size: 1.2rem; font-weight: 900; color: white; display: block; margin-bottom: 10px; }
+    .foot-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 22px; margin: 16px 0; }
+    .foot-links a { color: rgba(255,255,255,.35); text-decoration: none; font-size: .8rem; transition: color .2s; }
+    .foot-links a:hover { color: white; }
+
+    /* ─── SCROLL ANIMATIONS ───────────────────── */
+    .fi { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
+    .fi.vis { opacity: 1; transform: none; }
+
+    /* ─── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 760px) {
+      .nav-links { display: none; }
+      .app-card { padding: 26px 18px; }
+      .res-actions { grid-template-columns: 1fr; }
+      .cmp-before { height: 260px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ══════════════════════════════════ -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">🥕 Gaajarfi</a>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#benefits">Benefits</a></li>
+    </ul>
+    <button class="nav-btn" onclick="scrollToApp()">Try Free →</button>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-content">
+    <div class="badge">✨ AI-Powered · Free · Instant</div>
+    <h1>See Yourself as a<br><span class="grad">Carrot Champion</span></h1>
+    <p class="hero-sub">Upload your photo and watch AI transform you into the ultimate carrot enthusiast — and discover why eating carrots daily is one of the best health decisions you can make.</p>
+    <a class="hero-cta" onclick="scrollToApp()">🥕 Try It Free — Instant Results!</a>
+    <p class="hero-proof">✅ <b>100% privacy-safe</b> — your photos are never stored or shared.</p>
+  </div>
+</section>
+
+<!-- ═══ APP SECTION ══════════════════════════════ -->
+<section id="app">
+  <div class="app-wrap">
+    <div class="sec-head">
+      <h2>Get Your Carrot Portrait</h2>
+      <p>Upload a clear photo of yourself — AI does the rest in under 30 seconds.</p>
+    </div>
+
+    <div class="app-card">
+
+      <!-- ── UPLOAD STAGE ── -->
+      <div id="uploadStage">
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
+          <div class="up-icon">📸</div>
+          <h3>Drop your photo here</h3>
+          <p>or click to browse from your device</p>
+          <div class="upload-hints">
+            <span>✓ JPG / PNG / WEBP</span>
+            <span>✓ Max 10 MB</span>
+            <span>✓ Face clearly visible</span>
+          </div>
+        </div>
+
+        <div class="preview-wrap" id="previewWrap">
+          <img id="previewImg" src="" alt="Your photo">
+          <br>
+          <span class="change-link" onclick="changePhoto()">↩ Change photo</span>
+        </div>
+
+        <div class="err-box" id="errBox"></div>
+
+        <button class="gen-btn" id="genBtn" onclick="generate()" disabled>
+          🥕 Gaajarfy Me!
+        </button>
+      </div>
+
+      <!-- ── LOADING STAGE ── -->
+      <div id="loadingStage">
+        <div class="load-wrap">
+          <span class="load-carrot">🥕</span>
+          <h3>Creating your Carrot Portrait…</h3>
+          <p>This takes about 20–30 seconds</p>
+          <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+          <ul class="load-steps">
+            <li class="load-step"><div class="dot active" id="d1"></div> Analyzing your face…</li>
+            <li class="load-step"><div class="dot" id="d2"></div> Finding your inner carrot enthusiast…</li>
+            <li class="load-step"><div class="dot" id="d3"></div> Adding the magic touch…</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── RESULT STAGE ── -->
+      <div id="resultStage">
+        <div class="res-head">
+          <h3>🥕 Your Carrot Portrait is Ready!</h3>
+          <p>Drag the slider left &amp; right to compare</p>
+        </div>
+
+        <div class="comparison" id="cmp">
+          <img class="cmp-before" id="beforeImg" src="" alt="Before">
+          <img class="cmp-after"  id="afterImg"  src="" alt="After — Carrot Champion">
+          <div class="cmp-handle" id="cmpHandle"></div>
+        </div>
+        <div class="cmp-labels">
+          <span>👤 You (before)</span>
+          <span>🥕 Carrot Champion</span>
+        </div>
+
+        <div class="fact-card">
+          <span class="fact-icon">🌿</span>
+          <div class="fact-body">
+            <small>Carrot Health Fact</small>
+            <p id="factText"></p>
+          </div>
+        </div>
+
+        <div class="res-actions">
+          <a class="act-btn dark" id="dlBtn" href="#" download="my-carrot-portrait.jpg">⬇ Download</a>
+          <button class="act-btn" onclick="shareResult()">🔗 Share</button>
+        </div>
+        <button class="again-btn" onclick="tryAgain()">🔄 Try with another photo</button>
+      </div>
+
+    </div><!-- /.app-card -->
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═════════════════════════════ -->
+<section id="how">
+  <div class="sec-title fi">
+    <h2>How It Works</h2>
+    <p>Three simple steps — from selfie to Carrot Champion in under 30 seconds</p>
+  </div>
+  <div class="steps">
+    <div class="step fi">
+      <div class="step-num">1</div>
+      <span class="step-ico">📸</span>
+      <h3>Upload Your Photo</h3>
+      <p>Pick any clear photo where your face is visible. Selfies, portraits, casual shots — all work great.</p>
+    </div>
+    <div class="step fi" style="transition-delay:.1s">
+      <div class="step-num">2</div>
+      <span class="step-ico">🤖</span>
+      <h3>AI Works Its Magic</h3>
+      <p>Our AI analyzes your face and generates a fun, realistic image of you happily enjoying a fresh carrot.</p>
+    </div>
+    <div class="step fi" style="transition-delay:.2s">
+      <div class="step-num">3</div>
+      <span class="step-ico">🥕</span>
+      <h3>Learn, Download &amp; Share!</h3>
+      <p>See your before/after, get a carrot health fact, download your portrait, and share it with friends.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BENEFITS ══════════════════════════════════ -->
+<section id="benefits">
+  <div class="sec-title fi">
+    <h2>Why Carrots Are a Superfood</h2>
+    <p>The science-backed reasons to eat more carrots every single day</p>
+  </div>
+  <div class="benefits">
+    <div class="ben fi">
+      <span class="ben-ico">👁️</span>
+      <h4>Supercharges Eyesight</h4>
+      <p>Rich in beta-carotene, converted by your body to Vitamin A — essential for night vision and protecting against age-related eye disease.</p>
+    </div>
+    <div class="ben fi">
+      <span class="ben-ico">❤️</span>
+      <h4>Heart Health Champion</h4>
+      <p>Regular carrot consumption is linked to a 32% lower risk of cardiovascular disease, thanks to powerful antioxidants and potassium.</p>
+    </div>
+    <div class="ben fi">
+      <span class="ben-ico">🛡️</span>
+      <h4>Immunity Booster</h4>
+      <p>Vitamins C and B6 strengthen your immune system, helping your body fight infections and recover faster from illness.</p>
+    </div>
+    <div class="ben fi">
+      <span class="ben-ico">✨</span>
+      <h4>Glowing Skin</h4>
+      <p>Carotenoids give skin a healthy warm glow, while Vitamin C boosts collagen production to keep skin firm and youthful.</p>
+    </div>
+    <div class="ben fi">
+      <span class="ben-ico">🧠</span>
+      <h4>Brain Sharpness</h4>
+      <p>Luteolin in carrots reduces brain inflammation and is linked to improved memory, focus, and reduced cognitive decline.</p>
+    </div>
+    <div class="ben fi">
+      <span class="ben-ico">⚡</span>
+      <h4>Low-Cal, High-Power Snack</h4>
+      <p>Just 25 calories per carrot with 3g of fiber — one of the most nutrient-dense, guilt-free snacks on the planet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BOTTOM CTA ════════════════════════════════ -->
+<section class="cta-band">
+  <h2>Ready to Become a Carrot Champion?</h2>
+  <p>It's free, takes under 30 seconds, and you might just learn something that changes your diet forever.</p>
+  <button class="cta-band-btn" onclick="scrollToApp()">🥕 Create My Portrait Now</button>
+</section>
+
+<!-- ═══ FOOTER ════════════════════════════════════ -->
+<footer>
+  <span class="foot-logo">🥕 Gaajarfi</span>
+  <p>The fun, AI-powered way to discover the power of carrots.</p>
+  <div class="foot-links">
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Contact</a>
+  </div>
+  <p style="margin-top:14px">© 2026 Gaajarfi. Photos are never stored or shared. AI-generated content for entertainment purposes only.</p>
+</footer>
+
+<script>
+// ─── Scroll helpers ───────────────────────────────
+function scrollToApp() {
+  document.getElementById('app').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── Floating hero carrots ────────────────────────
+(function () {
+  const bg = document.getElementById('heroBg');
+  const items = ['🥕','🥕','🥕','🌿','🥕','🥕','🌿'];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('span');
+    el.className = 'fc';
+    el.textContent = items[i % items.length];
+    el.style.left = Math.random() * 100 + '%';
+    el.style.fontSize = (1.4 + Math.random() * 2) + 'rem';
+    el.style.animationDuration = (7 + Math.random() * 7) + 's';
+    el.style.animationDelay = (Math.random() * 10) + 's';
+    bg.appendChild(el);
+  }
+})();
+
+// ─── File upload ──────────────────────────────────
+const fileInput  = document.getElementById('fileInput');
+const uploadZone = document.getElementById('uploadZone');
+const previewWrap = document.getElementById('previewWrap');
+const previewImg = document.getElementById('previewImg');
+const genBtn     = document.getElementById('genBtn');
+const errBox     = document.getElementById('errBox');
+let selectedFile = null;
+
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('drag');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+
+function loadFile(file) {
+  if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
+    return showErr('Please upload a JPG, PNG, or WEBP image.'); }
+  if (file.size > 10 * 1024 * 1024) {
+    return showErr('Image must be under 10 MB.'); }
+  hideErr();
+  selectedFile = file;
+  const r = new FileReader();
+  r.onload = e => {
+    previewImg.src = e.target.result;
+    previewWrap.style.display = 'block';
+    uploadZone.style.display = 'none';
+    genBtn.disabled = false;
+  };
+  r.readAsDataURL(file);
+}
+
+function changePhoto() {
+  selectedFile = null; fileInput.value = '';
+  previewWrap.style.display = 'none';
+  uploadZone.style.display = 'block';
+  genBtn.disabled = true; hideErr();
+}
+
+function showErr(msg) { errBox.textContent = '⚠️ ' + msg; errBox.style.display = 'block'; }
+function hideErr()    { errBox.style.display = 'none'; }
+
+// ─── Generate ─────────────────────────────────────
+async function generate() {
+  if (!selectedFile) return;
+  hideErr();
+  showStage('loading');
+  animateSteps();
+
+  const fd = new FormData();
+  fd.append('photo', selectedFile);
+  try {
+    const res  = await fetch('/generate', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.success) {
+      showResult(data);
+    } else {
+      showStage('upload');
+      showErr(data.error || 'Something went wrong. Please try again.');
+    }
+  } catch {
+    showStage('upload');
+    showErr('Connection error. Please try again.');
+  }
+}
+
+// ─── Loading step animation ───────────────────────
+let stepTmrs = [];
+function animateSteps() {
+  stepTmrs.forEach(clearTimeout); stepTmrs = [];
+  ['d1','d2','d3'].forEach(id => document.getElementById(id).className = 'dot');
+  document.getElementById('d1').classList.add('active');
+  // Reset progress bar
+  const bar = document.getElementById('progFill');
+  bar.style.animation = 'none'; bar.offsetHeight; bar.style.animation = '';
+  stepTmrs.push(setTimeout(() => {
+    document.getElementById('d1').className = 'dot done';
+    document.getElementById('d2').classList.add('active');
+  }, 7000));
+  stepTmrs.push(setTimeout(() => {
+    document.getElementById('d2').className = 'dot done';
+    document.getElementById('d3').classList.add('active');
+  }, 16000));
+}
+
+// ─── Stage control ────────────────────────────────
+function showStage(stage) {
+  document.getElementById('uploadStage').style.display  = stage === 'upload'  ? 'block' : 'none';
+  document.getElementById('loadingStage').style.display = stage === 'loading' ? 'block' : 'none';
+  document.getElementById('resultStage').style.display  = stage === 'result'  ? 'block' : 'none';
+  if (stage !== 'upload') scrollToApp();
+}
+
+// ─── Result display ───────────────────────────────
+function showResult(data) {
+  document.getElementById('beforeImg').src = data.original_image;
+  document.getElementById('afterImg').src  = data.generated_image;
+  document.getElementById('factText').textContent = data.carrot_fact;
+  document.getElementById('dlBtn').href = data.generated_image;
+  showStage('result');
+  confetti();
+  initSlider();
+}
+
+// ─── Comparison slider ────────────────────────────
+function initSlider() {
+  const cmp    = document.getElementById('cmp');
+  const after  = document.getElementById('afterImg');
+  const handle = document.getElementById('cmpHandle');
+  let drag = false;
+
+  function pct(cx) {
+    const r = cmp.getBoundingClientRect();
+    return Math.min(Math.max(((cx - r.left) / r.width) * 100, 4), 96);
+  }
+  function set(p) {
+    after.style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+    handle.style.left = p + '%';
+  }
+  set(50);
+
+  cmp.addEventListener('mousedown', e => { drag = true; set(pct(e.clientX)); });
+  window.addEventListener('mousemove', e => { if (drag) set(pct(e.clientX)); });
+  window.addEventListener('mouseup',   () => drag = false);
+  cmp.addEventListener('touchstart', e => { drag = true; set(pct(e.touches[0].clientX)); }, { passive: true });
+  window.addEventListener('touchmove', e => { if (drag) set(pct(e.touches[0].clientX)); }, { passive: true });
+  window.addEventListener('touchend',  () => drag = false);
+}
+
+function tryAgain() {
+  changePhoto(); showStage('upload');
+}
+
+async function shareResult() {
+  const url = window.location.href;
+  if (navigator.share) {
+    try { await navigator.share({ title:'Gaajarfi — My Carrot Portrait!', text:'Check out my AI carrot portrait! 🥕', url }); } catch {}
+  } else {
+    await navigator.clipboard.writeText(url).catch(() => {});
+    alert('Link copied to clipboard!');
+  }
+}
+
+// ─── Confetti ─────────────────────────────────────
+function confetti() {
+  const cvs = document.createElement('canvas');
+  cvs.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+  document.body.appendChild(cvs);
+  const ctx = cvs.getContext('2d');
+  cvs.width = innerWidth; cvs.height = innerHeight;
+  const cols = ['#FF6B35','#FF9A3C','#22C55E','#FFD700','#FF69B4','#60A5FA'];
+  const ps = Array.from({length: 130}, () => ({
+    x: Math.random() * cvs.width, y: -10 - Math.random() * 80,
+    w: Math.random() * 11 + 5, h: Math.random() * 5 + 3,
+    c: cols[Math.floor(Math.random() * cols.length)],
+    sp: Math.random() * 4 + 2, a: Math.random() * Math.PI * 2,
+    sa: (Math.random() - .5) * .14,
+    wb: Math.random() * 4, ws: Math.random() * .09, wa: 0,
+  }));
+  let f = 0;
+  (function frame() {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ps.forEach(p => {
+      p.y += p.sp; p.a += p.sa; p.wa += p.ws;
+      ctx.save();
+      ctx.translate(p.x + Math.sin(p.wa) * p.wb * 5, p.y);
+      ctx.rotate(p.a); ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if (++f < 210) requestAnimationFrame(frame); else cvs.remove();
+  })();
+}
+
+// ─── Scroll fade-in ───────────────────────────────
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); } });
+}, { threshold: .12 });
+document.querySelectorAll('.fi').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
