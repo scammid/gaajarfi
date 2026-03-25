@@ -80,7 +80,7 @@ def generate():
         os.environ['REPLICATE_API_TOKEN'] = api_token
         with open(filepath, 'rb') as f:
             output = replicate.run(
-                "fofr/face-to-many:a07f252abbbd832009640b27f063ea52d87d7a23a185d4c51a2351e2393ed32a",
+                "fofr/face-to-many:a07f252abbbd832009640b27f063ea52d87d7a23a185ca165bec23b5adc8deaf",
                 input={
                     "image": f,
                     "style": "Photographic",
@@ -110,7 +110,11 @@ def generate():
         err = str(e)
         if 'Unauthenticated' in err or 'Invalid token' in err:
             return jsonify({'error': 'Invalid API token. Please check configuration.'}), 500
-        return jsonify({'error': f'Generation failed: {err}'}), 500
+        if 'insufficient credit' in err or '402' in err:
+            return jsonify({'error': 'Service billing issue. Please try again later.'}), 500
+        if 'Invalid version' in err or '422' in err:
+            return jsonify({'error': 'AI model error. Please try again.'}), 500
+        return jsonify({'error': 'Generation failed. Please try again with a clear face photo.'}), 500
 
     finally:
         if os.path.exists(filepath):
