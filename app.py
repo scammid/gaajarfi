@@ -110,7 +110,7 @@ def generate():
         err = str(e)
         if 'Unauthenticated' in err or 'Invalid token' in err:
             return jsonify({'error': 'Invalid API token. Please check configuration.'}), 500
-        return jsonify({'error': 'Generation failed. Try again with a clearer, well-lit face photo.'}), 500
+        return jsonify({'error': f'Generation failed: {err}'}), 500
 
     finally:
         if os.path.exists(filepath):
