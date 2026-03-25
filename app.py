@@ -1,10 +1,11 @@
 import os
+import io
 import uuid
 import base64
 import random
-import replicate
+from PIL import Image
+from huggingface_hub import InferenceClient
 from flask import Flask, request, jsonify, render_template
-from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -59,8 +60,8 @@ def generate():
     if not allowed_file(file.filename):
         return jsonify({'error': 'Only JPG, PNG, or WEBP images are allowed.'}), 400
 
-    api_token = os.getenv('REPLICATE_API_TOKEN')
-    if not api_token:
+    hf_token = os.getenv('HF_TOKEN')
+    if not hf_token:
         return jsonify({'error': 'Service not configured. Please contact support.'}), 500
 
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -70,51 +71,51 @@ def generate():
     file.save(filepath)
 
     try:
-        # Encode original image as base64 for safe in-browser display
-        with open(filepath, 'rb') as f:
-            img_bytes = f.read()
-        mime = 'image/jpeg' if ext in ('jpg', 'jpeg') else f'image/{ext}'
-        original_b64 = f"data:{mime};base64,{base64.b64encode(img_bytes).decode()}"
+        # Open, resize and encode original for display
+        img = Image.open(filepath).convert('RGB')
+        img_resized = img.resize((512, 512), Image.LANCZOS)
 
-        # Run AI generation on Replicate
-        os.environ['REPLICATE_API_TOKEN'] = api_token
-        with open(filepath, 'rb') as f:
-            output = replicate.run(
-                "fofr/face-to-many:a07f252abbbd832009640b27f063ea52d87d7a23a185ca165bec23b5adc8deaf",
-                input={
-                    "image": f,
-                    "style": "Photographic",
-                    "prompt": (
-                        "holding a large fresh orange carrot up to their smiling mouth, "
-                        "happily licking and enjoying the carrot, vibrant healthy lifestyle, "
-                        "bright natural lighting, fresh vegetables and greenery in background, "
-                        "joyful energetic expression, photorealistic portrait"
-                    ),
-                    "negative_prompt": "ugly, deformed, disfigured, blurry, low quality, bad anatomy, watermark",
-                    "num_outputs": 1,
-                    "guidance_scale": 7.5,
-                }
-            )
+        orig_buf = io.BytesIO()
+        img_resized.save(orig_buf, format='JPEG', quality=88)
+        original_b64 = f"data:image/jpeg;base64,{base64.b64encode(orig_buf.getvalue()).decode()}"
 
-        if output and len(output) > 0:
-            return jsonify({
-                'success': True,
-                'generated_image': str(output[0]),
-                'original_image': original_b64,
-                'carrot_fact': random.choice(CARROT_FACTS),
-            })
-        else:
-            return jsonify({'error': 'Image generation failed. Please try again.'}), 500
+        # Send to HuggingFace instruct-pix2pix (free)
+        client = InferenceClient(token=hf_token)
+
+        input_buf = io.BytesIO()
+        img_resized.save(input_buf, format='JPEG', quality=88)
+        input_buf.seek(0)
+
+        result = client.image_to_image(
+            image=input_buf.getvalue(),
+            prompt=(
+                "this person is happily licking a large fresh orange carrot, "
+                "holding the carrot up to their smiling mouth, joyful expression, "
+                "vibrant healthy lifestyle, bright natural lighting, photorealistic"
+            ),
+            negative_prompt="ugly, deformed, blurry, bad quality, watermark",
+            model="timbrooks/instruct-pix2pix",
+        )
+
+        # Encode result as base64
+        out_buf = io.BytesIO()
+        result.save(out_buf, format='JPEG', quality=88)
+        generated_b64 = f"data:image/jpeg;base64,{base64.b64encode(out_buf.getvalue()).decode()}"
+
+        return jsonify({
+            'success': True,
+            'generated_image': generated_b64,
+            'original_image': original_b64,
+            'carrot_fact': random.choice(CARROT_FACTS),
+        })
 
     except Exception as e:
         err = str(e)
-        if 'Unauthenticated' in err or 'Invalid token' in err:
-            return jsonify({'error': 'Invalid API token. Please check configuration.'}), 500
-        if 'insufficient credit' in err or '402' in err:
-            return jsonify({'error': 'Service billing issue. Please try again later.'}), 500
-        if 'Invalid version' in err or '422' in err:
-            return jsonify({'error': 'AI model error. Please try again.'}), 500
-        return jsonify({'error': 'Generation failed. Please try again with a clear face photo.'}), 500
+        if 'token' in err.lower() or '401' in err:
+            return jsonify({'error': 'Invalid API token. Please contact support.'}), 500
+        if 'rate limit' in err.lower() or '429' in err:
+            return jsonify({'error': 'Too many requests. Please wait a moment and try again.'}), 429
+        return jsonify({'error': 'Generation failed. Please try again with a clear, well-lit face photo.'}), 500
 
     finally:
         if os.path.exists(filepath):
