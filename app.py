@@ -3,8 +3,8 @@ import io
 import uuid
 import base64
 import random
+import requests
 from PIL import Image
-from huggingface_hub import InferenceClient
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 
@@ -15,6 +15,15 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+
+HF_API_URL = 'https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell'
+
+CARROT_PROMPTS = [
+    "a joyful person licking a large fresh orange carrot, holding it up to their smiling mouth, vibrant healthy lifestyle, bright natural lighting, photorealistic portrait, high quality",
+    "a happy smiling person biting into a fresh orange carrot, healthy glow, energetic expression, natural green background, photorealistic, studio quality",
+    "a cheerful person holding a bunch of fresh carrots, one carrot up to their mouth licking it, radiant healthy skin, warm lighting, photorealistic portrait",
+    "a delighted person enjoying a fresh carrot, licking it playfully, vibrant skin, natural sunlight, healthy lifestyle portrait, photorealistic high quality",
+]
 
 CARROT_FACTS = [
     "Carrots are the richest vegetable source of beta-carotene, which your body converts to Vitamin A — essential for sharp eyesight and a strong immune system.",
@@ -71,36 +80,30 @@ def generate():
     file.save(filepath)
 
     try:
-        # Open, resize and encode original for display
+        # Encode original image for display
         img = Image.open(filepath).convert('RGB')
-        img_resized = img.resize((512, 512), Image.LANCZOS)
-
+        img_display = img.resize((512, 512), Image.LANCZOS)
         orig_buf = io.BytesIO()
-        img_resized.save(orig_buf, format='JPEG', quality=88)
+        img_display.save(orig_buf, format='JPEG', quality=88)
         original_b64 = f"data:image/jpeg;base64,{base64.b64encode(orig_buf.getvalue()).decode()}"
 
-        # Send to HuggingFace instruct-pix2pix (free)
-        client = InferenceClient(token=hf_token)
-
-        input_buf = io.BytesIO()
-        img_resized.save(input_buf, format='JPEG', quality=88)
-        input_buf.seek(0)
-
-        result = client.image_to_image(
-            image=input_buf.getvalue(),
-            prompt=(
-                "this person is happily licking a large fresh orange carrot, "
-                "holding the carrot up to their smiling mouth, joyful expression, "
-                "vibrant healthy lifestyle, bright natural lighting, photorealistic"
-            ),
-            negative_prompt="ugly, deformed, blurry, bad quality, watermark",
-            model="timbrooks/instruct-pix2pix",
+        # Generate carrot champion image with FLUX.1-schnell (free)
+        prompt = random.choice(CARROT_PROMPTS)
+        resp = requests.post(
+            HF_API_URL,
+            headers={'Authorization': f'Bearer {hf_token}'},
+            json={'inputs': prompt},
+            timeout=60,
         )
 
-        # Encode result as base64
-        out_buf = io.BytesIO()
-        result.save(out_buf, format='JPEG', quality=88)
-        generated_b64 = f"data:image/jpeg;base64,{base64.b64encode(out_buf.getvalue()).decode()}"
+        if resp.status_code == 200:
+            generated_b64 = f"data:image/jpeg;base64,{base64.b64encode(resp.content).decode()}"
+        elif resp.status_code == 429:
+            return jsonify({'error': 'Too many requests. Please wait a moment and try again.'}), 429
+        elif resp.status_code in (401, 403):
+            return jsonify({'error': 'Invalid API token. Please contact support.'}), 500
+        else:
+            return jsonify({'error': 'Generation failed. Please try again in a moment.'}), 500
 
         return jsonify({
             'success': True,
@@ -109,13 +112,10 @@ def generate():
             'carrot_fact': random.choice(CARROT_FACTS),
         })
 
+    except requests.Timeout:
+        return jsonify({'error': 'Generation timed out. Please try again.'}), 500
     except Exception as e:
-        err = str(e)
-        if 'token' in err.lower() or '401' in err:
-            return jsonify({'error': 'Invalid API token. Please contact support.'}), 500
-        if 'rate limit' in err.lower() or '429' in err:
-            return jsonify({'error': 'Too many requests. Please wait a moment and try again.'}), 429
-        return jsonify({'error': 'Generation failed. Please try again with a clear, well-lit face photo.'}), 500
+        return jsonify({'error': 'Something went wrong. Please try again.'}), 500
 
     finally:
         if os.path.exists(filepath):
